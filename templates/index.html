@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snake Cave Adventure</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+#game-container {
+position: relative;
+width: 600px;
+height: 600px;
+border: 1px solid black;
+}
+
+#snake {
+position: absolute;
+width: 10px;
+height: 10px;
+background-color: white;
+}
+
+#treat {
+position: absolute;
+width: 10px;
+height: 10px;
+background-color: red;
+}
+
+#score {
+position: absolute;
+top: 10px;
+left: 10px;
+font-size: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Snake Cave Adventure</h1>
+<div id="game-container"></div>
+<div id="score"></div>
+<script>
+// Initialize the game state
+var game_state = {
+snake: [
+[5, 5],
+[4, 5],
+[3, 5],
+],
+treats: [],
+direction: 'right',
+score: 0,
+game_over: false,
+};
+
+// Generate initial treats
+for (var i = 0; i < 10; i++) {
+game_state.treats.push([Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)]);
+}
+
+// Create the game board
+var game_container = document.getElementById('game-container');
+for (var i = 0; i < 11; i++) {
+for (var j = 0; j < 11; j++) {
+var cell = document.createElement('div');
+cell.style.width = '10px';
+cell.style.height = '10px';
+cell.style.border = '1px solid black';
+cell.style.position = 'absolute';
+cell.style.left = i * 10 + 'px';
+cell.style.top = j * 10 + 'px';
+game_container.appendChild(cell);
+}
+}
+
+// Create the snake
+var snake = document.createElement('div');
+snake.id = 'snake';
+snake.style.left = game_state.snake[0][0] * 10 + 'px';
+snake.style.top = game_state.snake[0][1] * 10 + 'px';
+game_container.appendChild(snake);
+
+// Create the treat
+var treat = document.createElement('div');
+treat.id = 'treat';
+treat.style.left = game_state.treats[0][0] * 10 + 'px';
+treat.style.top = game_state.treats[0][1] * 10 + 'px';
+game_container.appendChild(treat);
+
+// Create the score display
+var score_display = document.getElementById('score');
+score_display.innerHTML = 'Score: ' + game_state.score;
+
+// Handle user input
+document.addEventListener('keydown', function(e) {
+if (e.key === 'ArrowUp') {
+game_state.direction = 'up';
+} else if (e.key === 'ArrowDown') {
+game_state.direction = 'down';
+} else if (e.key === 'ArrowLeft') {
+game_state.direction = 'left';
+} else if (e.key === 'ArrowRight') {
+game_state.direction = 'right';
+}
+});
+
+// Start the game loop
+setInterval(function() {
+// Update the snake's position
+var head = game_state.snake[0];
+if (game_state.direction === 'up') {
+head[1] -= 1;
+} else if (game_state.direction === 'down') {
+head[1] += 1;
+} else if (game_state.direction === 'left') {
+head[0] -= 1;
+} else if (game_state.direction === 'right') {
+head[0] += 1;
+}
+
+// Check for collisions
+if (head[0] < 0 || head[0] > 10 || head[1] < 0 || head[1] > 10) {
+// Snake hit a wall
+game_state.game_over = true;
+} else if (head in game_state.snake.slice(1)) {
+// Snake hit itself
+game_state.game_over = true;
+} else {
+// Check for eating a treat
+if (head[0] === game_state.treats[0][0] && head[1] === game_state.treats[0][1]) {
+// Snake ate a treat
+game_state.score += 1;
+game_state.treats.shift();
+// Generate a new treat
+game_state.treats.push([Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)]);
+}
+
+// Move the snake
+game_state.snake.unshift(head);
+game_state.snake.pop();
+}
+
+// Update the snake's position on the game board
+snake.style.left = game_state.snake[0][0] * 10 + 'px';
+snake.style.top = game_state.snake[0][1] * 10 + 'px';
+
+// Update the treat's position on the game board
+treat.style.left = game_state.treats[0][0] * 10 + 'px';
+treat.style.top = game_state.treats[0][1] * 10 + 'px';
+
+// Update the score display
+score_display.innerHTML = 'Score: ' + game_state.score;
+
+// Check if the game is over
+if (game_state.game_over) {
+alert('Game over!');
+location.reload();
+}
+}, 100);
+</script>
+</body>
+</html>
+
